@@ -28,7 +28,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware', 
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -62,7 +62,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres.smokzyvwdrpcupgfbgxg',
-        'PASSWORD': 'PASSWORD HERE',
+        'PASSWORD': 'ManeEsPobre123',
         'HOST': 'aws-0-us-west-2.pooler.supabase.com',
         'PORT': '5432',
     }
