@@ -27,12 +27,16 @@ class Discipline(models.Model):
         return self.name
 
 
+
 class Tournament(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     noteams = models.SmallIntegerField()
     matchdays = models.SmallIntegerField()
     discipline = models.ForeignKey(Discipline, on_delete=models.CASCADE, db_column='disciplineid')
+    phase_started = models.BooleanField(default=False)
+    finished = models.BooleanField(default=False)
+    winner = models.ForeignKey('Team', on_delete=models.SET_NULL, null=True, blank=True, db_column='winnerid', related_name='won_tournaments')
 
     class Meta:
         db_table = 'tournaments'
@@ -40,7 +44,6 @@ class Tournament(models.Model):
 
     def __str__(self):
         return self.name
-
 
 class Team(models.Model):
     id = models.AutoField(primary_key=True)
@@ -109,3 +112,34 @@ class Log(models.Model):
 
     def __str__(self):
         return self.action
+    
+
+class Phase(models.Model):
+    id = models.AutoField(primary_key=True)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, db_column='tournamentid')
+    name = models.CharField(max_length=255)
+    phase_order = models.SmallIntegerField()
+
+    class Meta:
+        db_table = 'phases'
+        managed = False
+
+    def __str__(self):
+        return self.name
+
+
+class PhaseMatch(models.Model):
+    id = models.AutoField(primary_key=True)
+    phase = models.ForeignKey(Phase, on_delete=models.CASCADE, db_column='phaseid')
+    team_1 = models.ForeignKey(Team, on_delete=models.CASCADE, db_column='team_1id', related_name='phase_home_matches', null=True, blank=True)
+    team_2 = models.ForeignKey(Team, on_delete=models.CASCADE, db_column='team_2id', related_name='phase_away_matches', null=True, blank=True)
+    gf = models.SmallIntegerField(null=True, blank=True)
+    gc = models.SmallIntegerField(null=True, blank=True)
+    datematch = models.DateField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'phase_matches'
+        managed = False
+
+    def __str__(self):
+        return f"{self.team_1} vs {self.team_2}"

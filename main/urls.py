@@ -15,4 +15,10 @@ urlpatterns = [
     path('matches/generate/', views.generate_matches, name='generate_matches'),
     path('matches/<int:match_id>/update/', views.update_match, name='update_match'),    
     path('logout/', views.logout, name='logout'),
+    path('logs/', views.get_logs, name='get_logs'),
+    path('administrators/create/', views.create_administrator, name='create_administrator'),
+    path('tournaments/<int:tournament_id>/start-phase/', views.start_phase, name='start_phase'),
+    path('tournaments/<int:tournament_id>/phases/', views.get_phases, name='get_phases'),
+    path('phase-matches/<int:match_id>/update/', views.update_phase_match, name='update_phase_match'),
+    path('tournaments/<int:tournament_id>/finish/', views.finish_tournament, name='finish_tournament'),
 ]
