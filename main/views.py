@@ -785,3 +785,77 @@ def update_phase_match(request, match_id):
         'datematch': str(match.datematch) if match.datematch else None,
         'next_phase_generated': all_done and len(winners) > 1 if all_done else False,
     }, status=200)
+
+@csrf_exempt
+@require_POST
+@admin_required
+def delete_tournament(request, tournament_id):
+    try:
+        tournament = Tournament.objects.get(id=tournament_id)
+    except Tournament.DoesNotExist:
+        return JsonResponse({'error': 'Tournament not found'}, status=404)
+    name = tournament.name
+    tournament.delete()
+    create_log(f'Torneo {name} fue eliminado', request.admin_id)
+    return JsonResponse({'message': f'Tournament {name} deleted'}, status=200)
+
+
+@csrf_exempt
+@require_POST
+@admin_required
+def delete_team(request, team_id):
+    try:
+        team = Team.objects.get(id=team_id)
+    except Team.DoesNotExist:
+        return JsonResponse({'error': 'Team not found'}, status=404)
+    name = team.name
+    tournament_name = team.tournament.name
+    team.delete()
+    create_log(f'Equipo {name} fue eliminado del torneo {tournament_name}', request.admin_id)
+    return JsonResponse({'message': f'Team {name} deleted'}, status=200)
+
+
+@csrf_exempt
+@require_POST
+@admin_required
+def delete_participant(request, participant_id):
+    try:
+        participant = Participant.objects.get(id=participant_id)
+    except Participant.DoesNotExist:
+        return JsonResponse({'error': 'Participant not found'}, status=404)
+    name = participant.name
+    team_name = participant.team.name
+    participant.delete()
+    create_log(f'Participante {name} fue eliminado del equipo {team_name}', request.admin_id)
+    return JsonResponse({'message': f'Participant {name} deleted'}, status=200)
+
+
+@csrf_exempt
+@require_POST
+@admin_required
+def delete_match(request, match_id):
+    try:
+        match = Match.objects.get(id=match_id)
+    except Match.DoesNotExist:
+        return JsonResponse({'error': 'Match not found'}, status=404)
+    info = f'{match.team_1} vs {match.team_2}'
+    tournament_name = match.tournament.name
+    match.delete()
+    create_log(f'Partido {info} fue eliminado del torneo {tournament_name}', request.admin_id)
+    return JsonResponse({'message': f'Match {info} deleted'}, status=200)
+
+
+@csrf_exempt
+@require_POST
+@admin_required
+def delete_administrator(request, admin_id):
+    try:
+        admin = Administrator.objects.get(id=admin_id)
+    except Administrator.DoesNotExist:
+        return JsonResponse({'error': 'Administrator not found'}, status=404)
+    if admin.id == request.admin_id:
+        return JsonResponse({'error': 'Cannot delete yourself'}, status=400)
+    name = admin.name
+    admin.delete()
+    create_log(f'Admin {name} fue eliminado', request.admin_id)
+    return JsonResponse({'message': f'Administrator {name} deleted'}, status=200)
