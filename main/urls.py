@@ -26,4 +26,6 @@ urlpatterns = [
     path('participants/<int:participant_id>/delete/', views.delete_participant, name='delete_participant'),
     path('matches/<int:match_id>/delete/', views.delete_match, name='delete_match'),
     path('administrators/<int:admin_id>/delete/', views.delete_administrator, name='delete_administrator'),
+    path('teams/<int:team_id>/update/', views.update_team, name='update_team'),
+    path('participants/<int:participant_id>/update/', views.update_participant, name='update_participant'),
 ]

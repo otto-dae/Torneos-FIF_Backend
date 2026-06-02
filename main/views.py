@@ -859,3 +859,74 @@ def delete_administrator(request, admin_id):
     admin.delete()
     create_log(f'Admin {name} fue eliminado', request.admin_id)
     return JsonResponse({'message': f'Administrator {name} deleted'}, status=200)
+
+@csrf_exempt
+@require_POST
+@admin_required
+def update_team(request, team_id):
+    try:
+        body = json.loads(request.body)
+        name = body.get('name', '').strip()
+        logo = body.get('logo', '').strip()
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid request body'}, status=400)
+    try:
+        team = Team.objects.get(id=team_id)
+    except Team.DoesNotExist:
+        return JsonResponse({'error': 'Team not found'}, status=404)
+    changes_made = []
+    if name and name != team.name:
+        changes_made.append(f"nombre: '{team.name}' -> '{name}'")
+        team.name = name
+    if logo is not None and logo != team.logo:
+        changes_made.append("logo actualizado")
+        team.logo = logo
+    if not changes_made:
+        return JsonResponse({'error': 'No changes provided'}, status=400)
+    team.save()
+    changes_str = ", ".join(changes_made)
+    create_log(f'Equipo {team.name} (Torneo: {team.tournament.name}) actualizado. Cambios: {changes_str}', request.admin_id)
+    return JsonResponse({
+        'id': team.id,
+        'name': team.name,
+        'logo': team.logo,
+        'tournament': team.tournament.name,
+    }, status=200)
+
+@csrf_exempt
+@require_POST
+@admin_required
+def update_participant(request, participant_id):
+    try:
+        body = json.loads(request.body)
+        name = body.get('name', '').strip()
+        phone = body.get('phone', '').strip()
+        email = body.get('email', '').strip()
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid request body'}, status=400)
+    try:
+        participant = Participant.objects.get(id=participant_id)
+    except Participant.DoesNotExist:
+        return JsonResponse({'error': 'Participant not found'}, status=404)
+    changes_made = []
+    if name and name != participant.name:
+        changes_made.append(f"nombre: '{participant.name}' -> '{name}'")
+        participant.name = name
+    if phone is not None and phone != participant.phone:
+        changes_made.append(f"teléfono: '{participant.phone}' -> '{phone}'")
+        participant.phone = phone
+    if email is not None and email != participant.email:
+        changes_made.append(f"email: '{participant.email}' -> '{email}'")
+        participant.email = email
+    if not changes_made:
+        return JsonResponse({'error': 'No changes provided'}, status=400)
+    participant.save()
+    changes_str = ", ".join(changes_made)
+    create_log(f'Participante {participant.name} (Equipo: {participant.team.name}) actualizado. Cambios: {changes_str}', request.admin_id)
+    return JsonResponse({
+        'id': participant.id,
+        'name': participant.name,
+        'phone': participant.phone,
+        'email': participant.email,
+        'team': participant.team.name,
+    }, status=200)
